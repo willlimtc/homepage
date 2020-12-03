@@ -39,9 +39,6 @@ plainwhite:
     #soundcloud: jekyll
     #telegram: jekyll
     #gitlab: jekyll
-  navigation:
-    - title: About Me
-      url: "/about-me"
 
     # Mastodon instances
     # mastodon:
