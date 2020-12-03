@@ -39,7 +39,11 @@ plainwhite:
     #soundcloud: jekyll
     #telegram: jekyll
     #gitlab: jekyll
-
+  navigation:
+    - title: My Work
+      url: "/my-work"
+    - title: Resume
+      url: "/resume"
     # Mastodon instances
     # mastodon:
     # - username: jekyll
