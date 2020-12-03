@@ -40,10 +40,9 @@ plainwhite:
     #telegram: jekyll
     #gitlab: jekyll
   navigation:
-    - title: My Work
-      url: "/my-work"
-    - title: Resume
-      url: "/resume"
+    - title: About Me
+      url: "/about-me"
+
     # Mastodon instances
     # mastodon:
     # - username: jekyll
