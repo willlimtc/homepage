@@ -54,7 +54,7 @@ Alright, below is the demo app at the moment. It can do the following tasks:
 
 ## Acknowledgement and next steps
 
-Huge thanks to the open source developer community around Microsoft product and services. The [AzureCommunicationCalling](https://github.com/Laerdal/Xamarin.AzureCommunicationCalling) project lays out a great foundation for this demo. I also greatly appreciate the support from the very knowledgeable veteran technical architect Todd Van Nurden in MTC Minneapolis (I enjoyed your recount of the history of Xamarin Forms a lot!). Last but not lease, kudos to my manager Ali Mazaheri for seeing the potential magic reactions between ACS & DUO and pointing out the direction.  
+Huge thanks to the open source developer community around Microsoft product and services. The [AzureCommunicationCalling](https://github.com/Laerdal/Xamarin.AzureCommunicationCalling) project lays out a great foundation for this demo. I also greatly appreciate the support from the very knowledgeable veteran technical architect Todd Van Nurden in MTC Minneapolis (I enjoyed your recount of the history of Xamarin Forms a lot!). Last but not least, kudos to my manager Ali Mazaheri for seeing the potential magic reactions between ACS & DUO and pointing out the direction.  
 
 For the next steps, the code will be made available to the GitHub repo soon. As you may also see, there are a whole lot of features that we can leverage Azure services and build upon the current demo. To name a few:
 
