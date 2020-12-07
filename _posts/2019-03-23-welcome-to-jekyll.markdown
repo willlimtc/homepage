@@ -44,4 +44,4 @@ With the platform and SDKs in place, now we can develop the sample app. A few cr
 
 Alright, what we have now is a demo app that can make phone call, group video chat one screen and manage the tickets on the other screen, as shown below. There are a whole lot of features that we can build upon the current demo, such as better UI (certainly for sure lol), Azure Active Directory based user authentication etc. Stay tuned and let me know if you have any good ideas on this!
 
-![Demo Picture](/assets/blogs/12032020-pic01.jpg "Demo Picture")
+<img class="light" src="{{site.baseurl }}/{{ site.plainwhite.portfolio_image }}" alt="{{ site.plainwhite.name }}" />
