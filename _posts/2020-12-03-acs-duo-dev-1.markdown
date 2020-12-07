@@ -4,9 +4,7 @@ title:  "Will's Azure Magic Ingredient - Azure Communication Service & Surface D
 date:   2020-12-03 14:35:00 +0000
 categories: Azure DUO Xamarin ACS
 ---
-
-<br>
-
+  
 This is the very first post on my blog. I am very excited about sharing my pathway towards an expert Azure app dev chef with you.
 So here is how the story started. Recently Microsoft has released [Azure Communication Service](https://docs.microsoft.com/en-us/azure/communication-services/). It is a cloud-based communications service that lets you add voice, video, chat and telephony to apps that can facilitate your business, which is currently in public review. If you just want to have a general review of what it is and how it works, the video below is a good starting point (I personally enjoy watching it a lot!). 
 
