@@ -5,6 +5,8 @@ date:   2020-12-03 14:35:00 +0000
 categories: Azure DUO Xamarin ACS
 ---
 
+<br>
+
 This is the very first post on my blog. I am very excited about sharing my pathway towards an expert Azure app dev chef with you.
 So here is how the story started. Recently Microsoft has released [Azure Communication Service](https://docs.microsoft.com/en-us/azure/communication-services/). It is a cloud-based communications service that lets you add voice, video, chat and telephony to apps that can facilitate your business, which is currently in public review. If you just want to have a general review of what it is and how it works, the video below is a good starting point (I personally enjoy watching it a lot!). 
 
@@ -12,13 +14,13 @@ So here is how the story started. Recently Microsoft has released [Azure Communi
 
 ## A business case 
 
-In this video, Scott presented a demo to show how customer service of a kitchen appliance company can leverage Azure Communication Service to help their customers to address the appliance issues remotely. With this demo, a customer can simply click the link and enable the camera to share the live video of the malfunctioned appliance with the customer service mechanic. In this way, customers don't have to wait for the mechanics to arrive at their homes to address the issues. Pretty cool, right?  
+In this video, Scott (CVP, Azure Intelligent Communications) presented a demo to show how customer service of a kitchen appliance company can leverage Azure Communication Service to help their customers to address the appliance issues remotely. With this demo, a customer can simply click the link and enable the camera to share the live video of the malfunctioned appliance with the customer service mechanic. In this way, customers don't have to wait for the mechanics to arrive at their homes to address the issues. Pretty cool, right?  
 
 Let's think from the customer service mechanic's perspective. In this demo, the mechanic sits in front of a PC to see the live stream and also update information on the ticket in the system. In this real world, however, they run from customer to customer and therefore sometimes don't have access to PC. If they use mobile devices, it is certainly difficult for them to video chat with customer while input information. So it there a way that they can have the same level of productivity while using mobile devices?
 
 ## The answer is certainly yes and here's one potential solution
 
-Almost at the same time, Microsoft has made the very [Surface Duo](https://www.microsoft.com/en-us/surface/devices/surface-duo) to the public. It features two a revolutionary new ways to use a mobile device thanks to an innovative 360 degree hinge, two screens and apps that seamlessly work together. If we can leverage the duo screen and the Azure Communication Service to create an app for the customer service mechanics, the problem is solved!  
+Almost at the same time, Microsoft has made the very [Surface Duo](https://www.microsoft.com/en-us/surface/devices/surface-duo) to the public. It features a revolutionary new ways to use a mobile device thanks to an innovative 360 degree hinge, two screens and apps that seamlessly work together. If we can leverage the duo screen and the Azure Communication Service to create an app for the customer service mechanics, the problem is solved!  
 
 So the next question is, how do we do it? It seems a like a difficult thing to start everything from scratch and breaking down a complicated task is always the best way to get started. Let's do it!
 
@@ -40,8 +42,25 @@ With the platform and SDKs in place, now we can develop the sample app. A few cr
 4. [Xamarin two pane view](https://docs.microsoft.com/en-us/dual-screen/xamarin/twopaneview). A NuGet package to help dictate how two screens present the app layout.
 5. [Xamarin Data Binding](https://docs.microsoft.com/en-us/xamarin/xamarin-forms/app-fundamentals/data-binding/). Linking the data from two layouts or screens.
 
-## So how the app looks like now
+### So how the app looks like now
 
-Alright, what we have now is a demo app that can make phone call, group video chat one screen and manage the tickets on the other screen, as shown below. There are a whole lot of features that we can build upon the current demo, such as better UI (certainly for sure lol), Azure Active Directory based user authentication etc. Stay tuned and let me know if you have any good ideas on this!
+Alright, below is the demo app at the moment. It can do the following tasks:
+
+- Making a phone call: you can input the phone number in the text box and make a phone call to any U.S. based numbers.
+- Making a group video chat: you can join a group video chat that all the participants share the same conference ID token.
+- Viewing and Editing ticket information: you can view and edit the ticket information while calling or video chatting with your customer. The viewing pane can be customized into anything that suits your business needs!
 
 ![Demo Picture]({{site.baseurl }}/assets/blogs/12032020_pic01.jpg)
+
+## Acknowledgement and next steps
+
+Huge thanks to the open source developer community around Microsoft product and services. The [AzureCommunicationCalling](https://github.com/Laerdal/Xamarin.AzureCommunicationCalling) project lays out a great foundation for this demo. I also greatly appreciate the support from the very knowledgeable veteran technical architect Todd Van Nurden in MTC Minneapolis (I enjoyed your recount of the history of Xamarin Forms a lot!). Last but not lease, kudos to my manager Ali Mazaheri for seeing the potential magic reactions between ACS & DUO and pointing out the direction.  
+
+For the next steps, the code will be made available to the GitHub repo soon. As you may also see, there are a whole lot of features that we can leverage Azure services and build upon the current demo. To name a few:
+
+- A "fancier" UI: you certainly have the same conclusion after seeing the demo picture lol.
+- User AuthN & AuthZ: Azure Active Directory provides a comprehensive enterprise identity service features B2C that can perfectly apply to this scenario, especially you want to build a HTTP-based ACS access token service.
+- NoSQL backend: Azure CosmosDB provides a simply to use and security compliant solution to store the ticket information on the backend. 
+
+Stay tuned and let me know if you have any good ideas on this!
+
