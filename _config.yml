@@ -26,8 +26,8 @@ plainwhite:
     - post
   # generate social links in footer
   social_links:
-    twitter: willlimtc
-    github:  WillLi-MTC
+    #twitter: willlimtc
+    github:  willlimtc
     linkedIn: in/luyuanli
     #rss: rss
     #dribbble: jekyll
