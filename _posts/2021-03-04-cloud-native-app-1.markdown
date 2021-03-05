@@ -1,0 +1,63 @@
+---
+layout: post
+title:  "Will's Azure Magic Ingredient - Cloud Native Application 101 - PART I"
+date:   2021-03-04 11:35:00 +0000
+categories: Azure Cloud-Native Azure-Functions Cosmos-DB .NET-Core
+---
+  
+Hello world! This is the very first post on my blog. I am very excited about sharing my pathway towards an expert Azure app dev chef with you. So here is how the story started. Recently Microsoft has released [Azure Communication Service](https://docs.microsoft.com/en-us/azure/communication-services/). It is a cloud-based communications service that lets you add voice, video, chat and telephony to apps that can facilitate your business, which is currently in public review. If you just want to have a general review of what it is and how it works, the video below is a good starting point (I personally enjoy watching it a lot!). 
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/49oshhgY6UQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+## A business case 
+
+In this video, Scott (CVP, Azure Intelligent Communications) presented a demo to show how customer service of a kitchen appliance company can leverage Azure Communication Service to help their customers to address the appliance issues remotely. With this demo, a customer can simply click the link and enable the camera to share the live video of the malfunctioned appliance with the customer service mechanic. In this way, customers don't have to wait for the mechanics to arrive at their homes to address the issues. Pretty cool, right?  
+
+Let's think from the customer service mechanic's perspective. In this demo, the mechanic sits in front of a PC to see the live stream and also update information on the ticket in the system. In this real world, however, they run from customer to customer and therefore sometimes don't have access to PC. If they use mobile devices, it is certainly difficult for them to video chat with customer while input information. So it there a way that they can have the same level of productivity while using mobile devices?
+
+## The answer is certainly yes and here's one potential solution
+
+Almost at the same time, Microsoft has made the very [Surface Duo](https://www.microsoft.com/en-us/surface/devices/surface-duo) to the public. It features a revolutionary new ways to use a mobile device thanks to an innovative 360 degree hinge, two screens and apps that seamlessly work together. If we can leverage the duo screen and the Azure Communication Service to create an app for the customer service mechanics, the problem is solved!  
+
+So the next question is, how do we do it? It seems a like a difficult thing to start everything from scratch and breaking down a complicated task is always the best way to get started. Let's do it!
+
+### Azure Communication Service resource
+
+Azure Communication Service is now in public review. You can [create an ACS resource](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/create-communication-resource?tabs=windows&pivots=platform-azp) in the Azure portal using your subscription. If you want to use the telephony and SMS function from ACS, you can also [get a telephone number from the ACS resource](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/telephony-sms/get-phone-number).
+
+### Mobile app development
+
+Once we have the resource deployed in place, the next step is to crate the app that we have imagined. How do we choose the mobile development platform? The answer is really up to you, because there are always pros and cons for each mobile development platform. In this case, I chose [Xamarin.Forms](https://dotnet.microsoft.com/apps/xamarin/xamarin-forms), which is an open source cross platform framework from Microsoft for building iOS, Android and Windows apps with .NET from a single share code base. The benefit also extends to the Surface DUO device, as the DUO provides [a SDK with Xamarin](https://docs.microsoft.com/en-us/dual-screen/xamarin/use-sdk) to enable the coordination between the two screens.  
+
+What about the Azure Communication Service SDKs? Well, here is the complete [list of client libraries ACS has provided](https://docs.microsoft.com/en-us/azure/communication-services/concepts/sdk-options). Unfortunately, it hasn't provided Xamarin supportability yet. Luckily, we have a huge developer community that support us. Here's one [project](https://github.com/Laerdal/Xamarin.AzureCommunicationCalling) that encapsulate the JAVA library into the Xamarin project.  
+
+With the platform and SDKs in place, now we can develop the sample app. A few critical things to tackle during the development is listed here:  
+
+1. [Create and manage ACS access tokens](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/access-tokens?pivots=programming-language-csharp). You need to create either a HTTP-based or in-place user access token management service.
+2. [Make phone call using ACS](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/pstn-call?pivots=platform-android). One core function of the app and a phone number on Azure is required.
+3. [Enable video chatting on ACS](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/getting-started-with-calling?pivots=platform-android). A critical function to help the customers.
+4. [Xamarin two pane view](https://docs.microsoft.com/en-us/dual-screen/xamarin/twopaneview). A NuGet package to help dictate how two screens present the app layout.
+5. [Xamarin Data Binding](https://docs.microsoft.com/en-us/xamarin/xamarin-forms/app-fundamentals/data-binding/). Linking the data from two layouts or screens.
+
+### So how the app looks like now
+
+Alright, below is the demo app at the moment. It can do the following tasks:
+
+- Making a phone call: you can input the phone number in the text box and make a phone call to any U.S. based numbers.
+- Making a group video chat: you can join a group video chat that all the participants share the same conference ID token.
+- Viewing and Editing ticket information: you can view and edit the ticket information while calling or video chatting with your customer. The viewing pane can be customized into anything that suits your business needs!
+
+![Demo Picture]({{site.baseurl }}/assets/blogs/12032020_pic01.jpg)
+
+## Acknowledgement and next steps
+
+Huge thanks to the open source developer community around Microsoft product and services. The [AzureCommunicationCalling](https://github.com/Laerdal/Xamarin.AzureCommunicationCalling) project lays out a great foundation for this demo. I also greatly appreciate the support from the very knowledgeable veteran technical architect Todd Van Nurden in MTC Minneapolis (I enjoyed your recount of the history of Xamarin Forms a lot!). Last but not least, kudos to my manager Ali Mazaheri for seeing the potential magic reactions between ACS & DUO and pointing out the direction.  
+
+For the next steps, the code will be made available to the GitHub repo soon. As you may also see, there are a whole lot of features that we can leverage Azure services and build upon the current demo. To name a few:
+
+- A "fancier" UI: you certainly have the same conclusion after seeing the demo picture lol.
+- User AuthN & AuthZ: Azure Active Directory provides a comprehensive enterprise identity service features B2C that can perfectly apply to this scenario, especially you want to build a HTTP-based ACS access token service.
+- NoSQL backend: Azure CosmosDB provides a simply to use and security compliant solution to store the ticket information on the backend. 
+
+Stay tuned and let me know if you have any good ideas on this!
+
