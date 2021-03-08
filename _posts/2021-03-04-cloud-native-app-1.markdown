@@ -1,31 +1,86 @@
 ---
 layout: post
-title:  "Will's Azure Magic Ingredient - Cloud Native Application 101 - PART I"
+title:  "Will's Azure Magic Ingredient - Building Cloud Native Application 101 - PART I"
 date:   2021-03-04 11:35:00 +0000
 categories: Azure Cloud-Native Azure-Functions Cosmos-DB .NET-Core
 ---
   
-Hello world! This is the very first post on my blog. I am very excited about sharing my pathway towards an expert Azure app dev chef with you. So here is how the story started. Recently Microsoft has released [Azure Communication Service](https://docs.microsoft.com/en-us/azure/communication-services/). It is a cloud-based communications service that lets you add voice, video, chat and telephony to apps that can facilitate your business, which is currently in public review. If you just want to have a general review of what it is and how it works, the video below is a good starting point (I personally enjoy watching it a lot!). 
+Hello and happy March! In this blog, I am going to share a recent customer engagement experience on building cloud native scalable applications. To many IT practitioners, cloud native sounds like another industry buzzword and it is difficult to get started with some hands-on experience. Therefore, the customer engagement is designed for them to have such experience and a good starting point to build production systems that are more resilient, manageable and automated. The engagement went really well and our customer is very happy about moving towards the right direction. Since this engagement provided some common guidances for being more "cloud native" (on Azure, of course), I decided to post it in my blog to share it with larger audiences. Without further ado, let's get started!  
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/49oshhgY6UQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+## The starting point 
 
-## A business case 
+We normally started customer engagement with a discovery session to access their current state and lay a common ground. We find one of their applications is a good starting point. The application is a very simple [ASP.NET](https://docs.microsoft.com/en-us/aspnet/overview) CRUD(Create, Read, Update and Delete) application to collect and manage certain types of information accompanying their business process. The user base is relatively small but the application is mission critical. The proposed architecture will add additional complexity to this simple application. These additional components are necessary to demonstrate how to build the cloud native application that achieves the following goals:
 
-In this video, Scott (CVP, Azure Intelligent Communications) presented a demo to show how customer service of a kitchen appliance company can leverage Azure Communication Service to help their customers to address the appliance issues remotely. With this demo, a customer can simply click the link and enable the camera to share the live video of the malfunctioned appliance with the customer service mechanic. In this way, customers don't have to wait for the mechanics to arrive at their homes to address the issues. Pretty cool, right?  
+1. Microservice based
+2. Automation and rapid iteration
+3. Scalable and failure tolerant
+4. Leveraging Platform Service
 
-Let's think from the customer service mechanic's perspective. In this demo, the mechanic sits in front of a PC to see the live stream and also update information on the ticket in the system. In this real world, however, they run from customer to customer and therefore sometimes don't have access to PC. If they use mobile devices, it is certainly difficult for them to video chat with customer while input information. So it there a way that they can have the same level of productivity while using mobile devices?
+## The proposed architecture
 
-## The answer is certainly yes and here's one potential solution
+The proposed architecture leverages the Azure cloud extensively, balancing security, availability, flexibility and cost. Also, the architecture is moving heavily towards the PaaS service as much as possible (compared to on-prem and IaaS) to simplify operations and reduce on going costs. The proposed architecture is shown below:
 
-Almost at the same time, Microsoft has made the very [Surface Duo](https://www.microsoft.com/en-us/surface/devices/surface-duo) to the public. It features a revolutionary new ways to use a mobile device thanks to an innovative 360 degree hinge, two screens and apps that seamlessly work together. If we can leverage the duo screen and the Azure Communication Service to create an app for the customer service mechanics, the problem is solved!  
+# Show the Pictures here
 
-So the next question is, how do we do it? It seems a like a difficult thing to start everything from scratch and breaking down a complicated task is always the best way to get started. Let's do it!
+The proposed architecture employs a typical three-tier client-server pattern that separates the presentation, business logic and data persistence. Each layer will employ a set of Azure products and services to implement.
 
-### Azure Communication Service resource
+### Presentation layer
 
-Azure Communication Service is now in public review. You can [create an ACS resource](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/create-communication-resource?tabs=windows&pivots=platform-azp) in the Azure portal using your subscription. If you want to use the telephony and SMS function from ACS, you can also [get a telephone number from the ACS resource](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/telephony-sms/get-phone-number).
+[Azure Traffic Manager](https://azure.microsoft.com/en-us/services/traffic-manager/)
 
-### Mobile app development
+Azure Traffic Manager is designed to support site load balancing, A/B Testing as well as to support fail-over routing.
+
+[Azure App Services](https://docs.microsoft.com/en-us/azure/app-service/overview)
+
+Azure App Services provides the hosting and scale points for the ASP.NET core web interface. Developers can take advantage of App Services “Deployment Slots” to demonstrate pilot deployments, beta test as well as their ability to support A/B testing.
+
+[App Service Plan](https://docs.microsoft.com/en-us/azure/app-service/overview-hosting-plans)
+
+App Service Plan is the logical container that runs the Azure App Service, which defines the region, number of VM instances as well as the pricing tier. In addition, Azure Function App (which will be introduced later) also has the option of running in the App Service Plan.
+
+### Service layer
+
+[API Management](https://docs.microsoft.com/en-us/azure/api-management/api-management-key-concepts)
+
+API Management provides business services abstraction for the solution, which allows for versioning, authentication and monitoring of the services. It can also be used to provide services documentation if required.
+
+[Azure Function App](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview)
+
+Azure Function serves as the services hosting layer for solution, which eliminate the need for VMs or even Azure App Services hosting solution. Function app provides auto scaling, deployment slots and act as the container for most, if not all services in this solution. In this solution, we will leverage App Service Plan to host the Azure Function App, which enables the access to deployment slot capabilities.
+
+### Persistence layer
+
+[Azure Cosmos DB](https://docs.microsoft.com/en-us/azure/cosmos-db/introduction)
+
+Cosmos DB is the data persistence storage for the solution. The original application was developed to use SQL Server to support a relational structure. However, there are no business requirements for a relational database. Azure Cosmos DB can be a good alternative and provide the experience with a document centric persistence layer.
+
+### Non-functional 
+
+[Azure Monitor](https://docs.microsoft.com/en-us/azure/azure-monitor/overview)
+
+Azure Monitor helps maximize the availability and performance of applications and services. It delivers a comprehensive solution for collecting, analyzing, and acting on telemetry from cloud and on-premises environments. This information helps understand how applications are performing and proactively identify issues affecting them and the resources they depend on.
+
+[Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview)
+
+Application Insights, a feature of Azure Monitor, is an extensible Application Performance Management (APM) service for developers and DevOps professionals. It will automatically detect performance anomalies, and includes powerful analytics tools to help diagnose issues and to understand what users actually do with the application. It works for apps on a wide variety of platforms including .NET, Node.js, Java, and Python hosted on-premises, hybrid, or any public cloud. It integrates seamlessly with the DevOps practices, and has connection points to a variety of development tools.
+
+## Implementation
+
+The progresses of the workshops with our customers are usually dynamic, depending on a few variables including the length of the time, workshop settings(a remote setting which is the only option right now certainly poses more challenges), and of course the current skill sets that our customers have in terms of building cloud native applications. At the end of this particular engagement, out customer managed to implement a working solution that contains the three layers as shown in the architecture graph above, without integrating with Azure Traffic Manager, API Management and nonfunctional components. I will leave these components to the following blog posts in this cloud native application development series. So let's break down into these three layers and see how we helped our customers build this application.
+
+### Persistence layer
+
+Choosing where to start is more of a personal choice, especially for an application that is not complicated in this case. Therefore, I started building this application from the persistence layer. As mentioned earlier that this application is designed to leverage Cosmos DB, a type of NoSQL database. Compared to relational database, Cosmos DB has a few advantages in this scenario: first, Cosmos DB contains schema-agnostic data (JSON file in this case), whose schema is not dictated by the application; second, Cosmos DB is capable of handling large, unrelated, indeterminate or rapidly changing data, which can scale data horizontally by sharing across servers; last but not the least, Cosmos DB  is built to support multiple different models and thus APIs to access and manipulate data.
+
+To spin up a Cosmos DB on Azure, there are a few ways to do it. In this workshop, we suggested our client to use the fundamental and easiest way - Azure portal. There are a few things to consider when creating the resource, which are listed below:
+
+1. [Choice of API](https://docs.microsoft.com/en-us/azure/cosmos-db/): we used the SQL/Core API for this application, since its core functionality is the CRUD operation. Therefore, we can use the SQL-like query to get the data that meets certain criteria.
+
+2. Consistency levels: the way that Cosmos DB achieves high availability and low latency is through a tradeoff. The core tradeoff is made through defining the consistency level, from strong all the way to eventual. Since we built the app just for the demonstration of regional use, the strong consistency level is used. If your application is scaled at global usage, it is strongly recommended to read the [documentation](https://docs.microsoft.com/en-us/azure/cosmos-db/distribute-data-globally) to make the best choice.
+
+3. [Partition key](https://docs.microsoft.com/en-us/azure/cosmos-db/partitioning-overview): once the Cosmos DB instance and the container have been created, it is important to specify the partition key to allow scale individual containers. Also the certain operations to the Cosmos DB enabled by SDKs require the partition key. Choosing the right partition key depends on the application, the [video](https://www.youtube.com/watch?v=KlXhee6R0rE) is a good resource to learn to choose the right partition key.
+
+### Service Layer
 
 Once we have the resource deployed in place, the next step is to crate the app that we have imagined. How do we choose the mobile development platform? The answer is really up to you, because there are always pros and cons for each mobile development platform. In this case, I chose [Xamarin.Forms](https://dotnet.microsoft.com/apps/xamarin/xamarin-forms), which is an open source cross platform framework from Microsoft for building iOS, Android and Windows apps with .NET from a single share code base. The benefit also extends to the Surface DUO device, as the DUO provides [a SDK with Xamarin](https://docs.microsoft.com/en-us/dual-screen/xamarin/use-sdk) to enable the coordination between the two screens.  
 
