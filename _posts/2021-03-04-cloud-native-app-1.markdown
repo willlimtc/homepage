@@ -20,7 +20,7 @@ We normally started customer engagement with a discovery session to access their
 
 The proposed architecture leverages the Azure cloud extensively, balancing security, availability, flexibility and cost. Also, the architecture is moving heavily towards the PaaS service as much as possible (compared to on-prem and IaaS) to simplify operations and reduce on going costs. The proposed architecture is shown below:
 
-# Show the Pictures here
+![Demo Picture]({{site.baseurl }}/assets/blogs/03042021_pic02.png)
 
 The proposed architecture employs a typical three-tier client-server pattern that separates the presentation, business logic and data persistence. Each layer will employ a set of Azure products and services to implement.
 
@@ -82,37 +82,62 @@ To spin up a Cosmos DB on Azure, there are a few ways to do it. In this workshop
 
 ### Service Layer
 
-Once we have the resource deployed in place, the next step is to crate the app that we have imagined. How do we choose the mobile development platform? The answer is really up to you, because there are always pros and cons for each mobile development platform. In this case, I chose [Xamarin.Forms](https://dotnet.microsoft.com/apps/xamarin/xamarin-forms), which is an open source cross platform framework from Microsoft for building iOS, Android and Windows apps with .NET from a single share code base. The benefit also extends to the Surface DUO device, as the DUO provides [a SDK with Xamarin](https://docs.microsoft.com/en-us/dual-screen/xamarin/use-sdk) to enable the coordination between the two screens.  
+The service layer, also known as the logic tier or middle tier, is the heart of the application. In this tier, the requests from the presentation layer is processed - in this case against all the information stored in the data persistence layer, as the core function of this application is to create, read, update and delete data entries (in this case, recruit information) in the Cosmos DB. In order to implement the service layer, there are a few things to consider:
 
-What about the Azure Communication Service SDKs? Well, here is the complete [list of client libraries ACS has provided](https://docs.microsoft.com/en-us/azure/communication-services/concepts/sdk-options). Unfortunately, it hasn't provided Xamarin supportability yet. Luckily, we have a huge developer community that support us. Here's one [project](https://github.com/Laerdal/Xamarin.AzureCommunicationCalling) that encapsulate the JAVA library into the Xamarin project.  
+- Abstraction of the service endpoint to the presentation layer as RESTful APIs
+- Managing connections to the Cosmos DB in the persistence layer
+- Can handle the increase of the demand from the persistence layer through automatic scaling
 
-With the platform and SDKs in place, now we can develop the sample app. A few critical things to tackle during the development is listed here:  
+With these things in mind, we chose implementing service layer using the Azure Functions, as it provides an elegant solution to all of the issue above. First of all, Azure Function provides a wide variety of execution triggers including the HTTP triggers with customized routing scheme. Therefore, Azure Functions can be exposed as RESTFul APIs, which abstract the business logics and are easy to be managed by platforms such as Azure API Management. Azure Functions also provide a great feature called input/output bindings that can soothly manage the connections to the Cosmos DB. Finally, as a serverless solution that is event driven, Azure Functions can scale automatically as demand increase and you only pay for the number of executions of the Functions (note: may vary depending on the plan you choose).
 
-1. [Create and manage ACS access tokens](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/access-tokens?pivots=programming-language-csharp). You need to create either a HTTP-based or in-place user access token management service.
-2. [Make phone call using ACS](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/pstn-call?pivots=platform-android). One core function of the app and a phone number on Azure is required.
-3. [Enable video chatting on ACS](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/voice-video-calling/getting-started-with-calling?pivots=platform-android). A critical function to help the customers.
-4. [Xamarin two pane view](https://docs.microsoft.com/en-us/dual-screen/xamarin/twopaneview). A NuGet package to help dictate how two screens present the app layout.
-5. [Xamarin Data Binding](https://docs.microsoft.com/en-us/xamarin/xamarin-forms/app-fundamentals/data-binding/). Linking the data from two layouts or screens.
+To create the Azure Function App, a simple way is through Visual Studio, as it is now fully integrated to the Azure application development practices. When creating a project, you can choose Function app with the language of your choice and then Visual Studio can automatically set up the the default environment for you. To create the CRUD APIs for the presentation layer, we follow the best practice of APIs design and list the APIs for the Azure functions as below (recruit is the entity for the operations):
 
-### So how the app looks like now
+    HTTP POST    /recruit       //Create a recruit entry
+    HTTP GET     /recruit       //List all the recruit entries
+    HTTP GET     /recruit/id    //Get the recruit entry with the id
+    HTTP PUT     /recruit/id    //Update the recruit entry with the id
+    HTTP DELETE  /recruit/id    //Delete the recruit entry with the id
 
-Alright, below is the demo app at the moment. It can do the following tasks:
+The sample code for the create Azure Function is listed below:
 
-- Making a phone call: you can input the phone number in the text box and make a phone call to any U.S. based numbers.
-- Making a group video chat: you can join a group video chat that all the participants share the same conference ID token.
-- Viewing and Editing ticket information: you can view and edit the ticket information while calling or video chatting with your customer. The viewing pane can be customized into anything that suits your business needs!
+        public static void CreateRecruit(
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "recruit")] HttpRequest req,
+            [CosmosDB (
+                databaseName:"recruit-db",
+                collectionName:"recruits",
+                ConnectionStringSetting = "CosmosDBConnection")] out dynamic document,
+                ILogger log)
+        {
+            log.LogInformation("Crate a recruit entry.");
 
-![Demo Picture]({{site.baseurl }}/assets/blogs/12032020_pic01.jpg)
+            string requestBody = new StreamReader(req.Body).ReadToEnd();
+            var input = JsonConvert.DeserializeObject<Recruit>(requestBody);
+            document = input;
+        }
 
-## Acknowledgement and next steps
+### Presentation layer
 
-Huge thanks to the open source developer community around Microsoft product and services. The [AzureCommunicationCalling](https://github.com/Laerdal/Xamarin.AzureCommunicationCalling) project lays out a great foundation for this demo. I also greatly appreciate the support from the very knowledgeable veteran technical architect Todd Van Nurden in MTC Minneapolis (I enjoyed your recount of the history of Xamarin Forms a lot!). Last but not least, kudos to my manager Ali Mazaheri for seeing the potential magic reactions between ACS & DUO and pointing out the direction.  
+The presentation layer is the user interface and communication layer of the application, where the end user interacts with the application. Its main purpose is to display information and collect information from the user. Since this application is designed as web application, the things needed to consider for implementing the application include the web develop framework and implementation details such as pagination.
 
-For the next steps, the code will be made available to the GitHub repo soon. As you may also see, there are a whole lot of features that we can leverage Azure services and build upon the current demo. To name a few:
+#### The framework
 
-- A "fancier" UI: you certainly have the same conclusion after seeing the demo picture lol.
-- User AuthN & AuthZ: Azure Active Directory provides a comprehensive enterprise identity service features B2C that can perfectly apply to this scenario, especially you want to build a HTTP-based ACS access token service.
-- NoSQL backend: Azure CosmosDB provides a simply to use and security compliant solution to store the ticket information on the backend. 
+There are tons of web development framework in the market including ExpressJS, Django and React.js etc. There are alway pros and cons of selecting one over another. In this workshop, we chose the [ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/introduction-to-aspnet-core?view=aspnetcore-5.0) MVC to implement the presentation layer, as it seamlessly integrates into the Azure App Service that enable publish the application by clicking only one button. If you are still a bit confused about the .NET ecosystem, this [article](https://www.azurebarry.com/dot-net-ecosystem-explained/) gives a good explanation. 
 
-Stay tuned and let me know if you have any good ideas on this!
+#### Pagination
+
+One of the most important implementation details of this CRUD application is pagination, meaning that user can request a page number (or plus the page size), the web application will return exactly what has been request. Since this application is designed for handling millions of records, pagination will help reduce the service load as well as improve the system security. There are two parts for implementing pagination: the RESTFul API endpoint side on the service layer and the controller side on the presentation layer. On the API endpoint side, it is required to respond with limit number of records and can retrieve the records at a certain point from the Cosmos DB. To meet these two requirements, we leveraged a feature in the Cosmos DB SDK called 'ContinuationToken', which is a static breakpoint from which the SDK can read records from Cosmos DB. This [article](https://www.chasingdevops.com/paging-azure-cosmos-db-sql-net-sdk/) gives a detailed explanation of how to use this feature in the RESTFul API endpoint. On the controller side, we designed a mechanism to manage the page number display and the ContinuationToken through using HTTP Session. The fundamental philosophy is to cache the ContinuationToken for a specific page when it has been obtained, so that we don't need to retrieve the token when the page is visited again.
+
+## Summary, acknowledgement and next steps
+
+So, with implementing the basic function of the three-layer application, our customer has made the first step towards building cloud native application in their production system. I have uploaded my sample code on [github](https://github.com/graphene-azure-app/hfdr-application), and feel free to reach out to me if you have any questions.
+
+I greatly appreciate the support from very knowledgeable compatriot technical architects Todd Van Nurden in MTC Minneapolis, Paul Fisher in MTC Reston and Ravi Tella in MTC Houston, especially Todd who spent a lot of time to discuss a better solution with me. Like he said during the engagement, everyone is learning during the workshop, including the Microsoft side. It is the growth mindset that has made Microsoft better know our customers and serve their needs.
+
+This is just a very simplified version of cloud native application, and there are a whole lot of features that we can leverage Azure services and build upon the current demo. To name a few:
+
+- Better security: this sample code hasn't implemented any security features including authentication & authorization, and secret management. No worries, Azure Active Directory and Azure Key Vault are here to help! 
+- Better management: managing application is important when put into the production, and using Azure Traffic Manager, API Management, Azure Monitor and Application Insights can offer a comprehensive way to manage the application on every layer and through different lens.
+- Better practice: to enable continual improvement of the application and therefore continual deliver values to the end user of the application, it is essential to integrate DevOps into the development and deployment operations for the application. Azure Dev Ops and GitHub are two great tools/platforms to enable DevOps.
+
+Stay tuned for the part Deux of this series!
 
