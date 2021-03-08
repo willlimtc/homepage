@@ -14,7 +14,7 @@ We normally started customer engagement with a discovery session to access their
 1. Microservice based
 2. Automation and rapid iteration
 3. Scalable and failure tolerant
-4. Leveraging Platform Service
+4. Leveraging Platform-as-a-Service(PaaS)
 
 ## The proposed architecture
 
@@ -82,7 +82,7 @@ To spin up a Cosmos DB on Azure, there are a few ways to do it. In this workshop
 
 ### Service Layer
 
-The service layer, also known as the logic tier or middle tier, is the heart of the application. In this tier, the requests from the presentation layer is processed - in this case against all the information stored in the data persistence layer, as the core function of this application is to create, read, update and delete data entries (in this case, recruit information) in the Cosmos DB. In order to implement the service layer, there are a few things to consider:
+The service layer, also known as the logic tier or middle tier, is the heart of the application. In this tier, the requests from the presentation layer are processed - in this case against all the information stored in the data persistence layer, as the core function of this application is to create, read, update and delete data entries (in this case, recruit information) in the Cosmos DB. In order to implement the service layer, there are a few things to consider:
 
 - Abstraction of the service endpoint to the presentation layer as RESTful APIs
 - Managing connections to the Cosmos DB in the persistence layer
