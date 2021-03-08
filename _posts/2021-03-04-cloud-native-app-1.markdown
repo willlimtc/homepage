@@ -46,7 +46,7 @@ API Management provides business services abstraction for the solution, which al
 
 [Azure Function App](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview)
 
-Azure Function serves as the services hosting layer for solution, which eliminate the need for VMs or even Azure App Services hosting solution. Function app provides auto scaling, deployment slots and act as the container for most, if not all services in this solution. In this solution, we will leverage App Service Plan to host the Azure Function App, which enables the access to deployment slot capabilities.
+Azure Function serves as the services hosting layer for solution, which eliminate the need for VMs or even Azure App Services hosting solution. Function app provides auto scaling, deployment slots and act as the container for most, if not all services in this solution. It is also worth noting that  App Service Plan can host the Azure Function App, which enables the access to deployment slot capabilities.
 
 ### Persistence layer
 
