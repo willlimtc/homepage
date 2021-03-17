@@ -115,6 +115,12 @@ The sample code for the create Azure Function is listed below:
             document = input;
         }
 
+### Identity management 
+
+Like any software applications, cloud native applications need to have some knowledge of the user or service that is calling them. The user or service interacting with an application is known as a security principal, and the process of authenticating and authorizing these principals is known as identity management. Authentication is the process of determining the identity of a security principal. Authorization is the act of granting an authenticated principal permission to perform an action or access a resource. Sometimes authentication is shortened to `AuthN` and authorization is shortened to `AuthZ`. Cloud-native applications need to rely on open HTTP-based protocols to authenticate security principals since both clients and applications could be running anywhere in the world on any platform or device. 
+
+[Microsoft Azure Active Directory (Azure AD)](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-whatis) offers identity and access management as a service. Customers use it to configure and maintain who users are, what information to store about them, who can access that information, who can manage it, and what apps can access it. AAD can authenticate users for applications configured to use it, providing a single sign-on (SSO) experience. Due to the time limit for this workshop, we haven't implemented the Azure AD integration with the application, which will explained in greater details.
+
 ### Presentation layer
 
 The presentation layer is the user interface and communication layer of the application, where the end user interacts with the application. Its main purpose is to display information and collect information from the user. Since this application is designed as web application, the things needed to consider for implementing the application include the web develop framework and implementation details such as pagination.
@@ -125,7 +131,118 @@ There are tons of web development framework in the market including ExpressJS, D
 
 #### Pagination
 
-One of the most important implementation details of this CRUD application is pagination, meaning that user can request a page number (or plus the page size), the web application will return exactly what has been request. Since this application is designed for handling millions of records, pagination will help reduce the service load as well as improve the system security. There are two parts for implementing pagination: the RESTFul API endpoint side on the service layer and the controller side on the presentation layer. On the API endpoint side, it is required to respond with limit number of records and can retrieve the records at a certain point from the Cosmos DB. To meet these two requirements, we leveraged a feature in the Cosmos DB SDK called 'ContinuationToken', which is a static breakpoint from which the SDK can read records from Cosmos DB. This [article](https://www.chasingdevops.com/paging-azure-cosmos-db-sql-net-sdk/) gives a detailed explanation of how to use this feature in the RESTFul API endpoint. On the controller side, we designed a mechanism to manage the page number display and the ContinuationToken through using HTTP Session. The fundamental philosophy is to cache the ContinuationToken for a specific page when it has been obtained, so that we don't need to retrieve the token when the page is visited again.
+One of the most important implementation details of this CRUD application is pagination, meaning that user can request a page number (or plus the page size), the web application will return exactly what has been request. Since this application is designed for handling millions of records, pagination will help reduce the service load as well as improve the system security. There are two parts for implementing pagination: the RESTFul API endpoint side on the service layer and the controller side on the presentation layer. On the API endpoint side, it is required to respond with limit number of records and can retrieve the records at a certain point from the Cosmos DB. To meet these two requirements, we leveraged a feature in the Cosmos DB SDK called `ContinuationToken`, which is a static breakpoint from which the SDK can read records from Cosmos DB. This [article](https://www.chasingdevops.com/paging-azure-cosmos-db-sql-net-sdk/) gives a detailed explanation of how to use this feature in the RESTFul API endpoint. In this application, we implement the `ContinuationToken` in the Function that corresponds to the `GET /recruit` API, since Function is the data access layer. As shown in the code below, the Function takes the HTTP request and read through the request body to see if any token is included. Then the `FeedOptions` in the Cosmos SDK encapsulates the these options and queries the Cosmos DB to get the desired results. The result itself also contains information on if there are more results yet to be retrieved.
+
+        [FunctionName("hfdr-list")]
+        public static async Task<IActionResult> ListRecruit(
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "recruit")] HttpRequest req,
+            [CosmosDB(
+                databaseName:"recruit-db",
+                collectionName:"recruits",
+                ConnectionStringSetting = "CosmosDBConnection"
+                )] DocumentClient client, 
+            ILogger log)
+        {
+            log.LogInformation("Get the all the recruit entries, with continual token");
+            var queryParams = req.GetQueryParameterDictionary();
+            var count = Int32.Parse(queryParams.FirstOrDefault(q => q.Key == "count").Value ?? "-1");
+
+            string pToken = await new StreamReader(req.Body).ReadToEndAsync();
+           
+            var feedOptions = new FeedOptions()
+            {
+                MaxItemCount = count,
+                RequestContinuation = pToken
+            };
+
+            var uri = UriFactory.CreateDocumentCollectionUri("recruit-db", "recruits");
+            var query = client.CreateDocumentQuery(uri, feedOptions).AsDocumentQuery();
+            var results = await query.ExecuteNextAsync();
+
+            return new OkObjectResult(new
+            {
+                hasMoreResults = query.HasMoreResults,
+                pagingToken = query.HasMoreResults ? results.ResponseContinuation : null,
+                results = results.ToList()
+            });
+        }
+
+ On the controller side, we designed a mechanism to manage the page number display and the `ContinuationToken` through using HTTP Session. The fundamental philosophy is to cache the ContinuationToken for a specific page when it has been obtained, so that we don't need to retrieve the token when the page is visited again. In terms of implementation, the first thing is to enable a `SessionExtensions` required by ASP.NET MVC to mandate data conversion during the `Get` and `Set` operation:
+
+     public static class SessionExtensions
+    {
+        public static void Set<T>(this ISession session, string key, T value)
+        {
+            session.SetString(key, JsonConvert.SerializeObject(value));
+        }
+
+        public static T Get<T>(this ISession session, string key)
+        {
+            var value = session.GetString(key);
+            return value == null ? default(T) : JsonConvert.DeserializeObject<T>(value);
+        }
+    }
+
+Then a session data is maintained as a dictionary mapping the page number to the corresponding `ContinuationToken`. Therefore whenever a request for a certain page comes, the following code will find the nearest preceding page with `ContinuationToken` and start to make request to the API to get the paginated result while caching the paging token along the way. Therefore, the current session will likely keep all the tokens after the user clicking a few pages.
+
+        public async Task<List<Recruit>> PaginatedResult(int currentPage, int totalPage)
+        {
+            @ViewBag.CurrentPage = currentPage;
+            @ViewBag.TotalPage = totalPage;
+            PagedRecruit pRecruit;
+            var dict = HttpContext.Session.Get<Dictionary<int, string>>("currDict");
+            if (dict == null) dict = new Dictionary<int, string>();
+            int pageWithToken = currentPage;
+            string cToken = null;
+
+            while(pageWithToken > 1)
+            {
+                if(dict.ContainsKey(pageWithToken))
+                {
+                    cToken = dict[pageWithToken];
+                    break;
+                }
+                pageWithToken--;
+
+            }
+
+            bool samePage = pageWithToken == currentPage;
+            string queryString = Configuration["ConnectionStrings:ListPageResult"] + "&count=" + PAGE_SIZE;
+
+            do
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    var httpReq = new HttpRequestMessage
+                    {
+                        Method = HttpMethod.Get,
+                        RequestUri = new Uri(queryString),
+                        Content = cToken == null ? null : new StringContent(cToken, Encoding.UTF8)
+                    };
+
+                    using (HttpResponseMessage res = await client.SendAsync(httpReq).ConfigureAwait(false))
+                    {
+                        using (HttpContent content = res.Content)
+                        {
+                            var jsonResult = await content.ReadAsStringAsync();
+                            pRecruit = JsonConvert.DeserializeObject<PagedRecruit>(jsonResult);
+                            if(pRecruit.HasMoreResults)
+                            {
+                                cToken = pRecruit.PagingToken;
+                                if(!dict.ContainsKey(pageWithToken + 1))
+                                    dict.Add(pageWithToken + 1, cToken);
+                            }
+                        }
+                    }
+                }
+                pageWithToken++;
+            } while (pageWithToken <= currentPage && (!samePage));
+
+            HttpContext.Session.Set<Dictionary<int, string>>("currDict", dict);
+            return pRecruit.Results;
+        }
+
+
 
 ## Summary, acknowledgement and next steps
 
