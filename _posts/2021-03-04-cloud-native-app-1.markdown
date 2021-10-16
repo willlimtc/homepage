@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Will's Azure Magic Ingredient - Building Cloud Native Application 101 - PART I"
+title:  "Will's Azure Magic Ingredient - Building Cloud Native Application 101"
 date:   2021-03-04 11:35:00 +0000
 categories: Azure Cloud-Native Azure-Functions Cosmos-DB .NET-Core
 ---

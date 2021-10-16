@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Will's Azure Magic Ingredient - Azure Communication Service & Surface DUO - PART I"
+title:  "Will's Azure Magic Ingredient - Azure Communication Service & Surface DUO"
 date:   2020-12-03 14:35:00 +0000
 categories: Azure DUO Xamarin ACS
 ---
