@@ -32,4 +32,5 @@ Are you interested in trying it out? Here is the [official documentation of the 
 
 1. [Containerize and migrate ASP.NET applications to AKS](https://docs.microsoft.com/en-us/learn/modules/migrate-aspnet-app-azure-kubernetes-service/)
 2. [Containerize and migrate ASP.NET applications to Azure App Service](https://docs.microsoft.com/en-us/learn/modules/migrate-aspnet-app-azure-app-service/)
-
+3. [Containerize and migrate Java web applications to Azure Kubernetes Service](https://docs.microsoft.com/en-us/learn/modules/migrate-java-app-azure-kubernetes-service/)
+4. [Containerize and migrate Java web applications to Azure App Service](https://docs.microsoft.com/en-us/learn/modules/migrate-java-app-azure-app-service/)
