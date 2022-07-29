@@ -53,7 +53,7 @@ plainwhite:
 # - about.md
 
 # Build settings
-#theme: plainwhite
+# theme: plainwhite  // This broke the build
 remote_theme: samarsault/plainwhite-jekyll
 
 plugins:
