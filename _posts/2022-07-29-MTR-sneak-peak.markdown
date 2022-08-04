@@ -23,6 +23,10 @@ Physical whiteboard camera (Logitech Scribe) with Crestron mobile MTR station
 
 Dual screen MTR front row experience
 
+![Demo Picture]({{site.baseurl }}/assets/blogs/07292022_pic07.jpg)
+
+Neat Board MTR experience
+
 ![Demo Picture]({{site.baseurl }}/assets/blogs/07292022_pic02.jpg)
 
 Yealink plug-in MTR experience
