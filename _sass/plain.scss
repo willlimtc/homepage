@@ -274,6 +274,36 @@ main {
   h6 {
     font-family: Raleway, sans-serif;
   }
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 480px;
+    margin: 28px auto;
+    border-radius: 8px;
+  }
+  figure {
+    margin: 36px auto;
+    max-width: 480px;
+    text-align: center;
+    img {
+      margin: 0 auto;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.12);
+    }
+    figcaption {
+      margin-top: 12px;
+      font-size: 0.8em;
+      line-height: 1.6em;
+      color: #888;
+      font-style: italic;
+    }
+    &.wide {
+      max-width: 660px;
+    }
+    @media screen and (max-width: $mobileW) {
+      max-width: 100%;
+    }
+  }
 }
 .posts-labelgroup {
   margin: 0 0 0.67em 0;
